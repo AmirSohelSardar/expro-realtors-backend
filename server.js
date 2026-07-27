@@ -14,10 +14,11 @@ import siteVisitRouter from './routes/siteVisit.routes.js';
 import newsletterRouter from './routes/newsletter.routes.js';
 
 const app = express();
-const PORT = process.env.PORT || 5000;
 
 // DB
-connectDB();
+connectDB().catch((err) => {
+    console.error("Failed to connect to MongoDB:", err.message);
+});
 
 // MIDDLEWARES
 const allowedOrigins = [
@@ -53,6 +54,13 @@ app.get("/", (req, res) => {
     res.send("API is running");
 });
 
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-});
+// Only run a real listening server locally.
+// On Vercel, the app is imported and wrapped as a serverless function instead.
+if (process.env.NODE_ENV !== "production") {
+    const PORT = process.env.PORT || 5000;
+    app.listen(PORT, () => {
+        console.log(`Server is running on http://localhost:${PORT}`);
+    });
+}
+
+export default app;
