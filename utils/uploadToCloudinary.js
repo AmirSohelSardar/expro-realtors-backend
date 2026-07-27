@@ -16,9 +16,24 @@ export const uploadToCloudinary = (buffer, folder= "general")=>{
 
 export const deleteFromCloudinary = async (imageUrl, folder = "properties") => {
     try {
-        const publicId = imageUrl.split("/").pop().split(".")[0];
-        await cloudinary.uploader.destroy(folder + "/" + publicId);
+        // Pull the full public_id (including any folder path, skipping the
+        // version segment like "v1234567890/") straight out of the URL,
+        // instead of guessing it from the filename — this handles nested
+        // folders and filenames with multiple dots correctly.
+        const match = imageUrl.match(/\/upload\/(?:v\d+\/)?(.+)\.[a-zA-Z0-9]+(?:\?.*)?$/);
+
+        if (!match) {
+            console.error("Could not parse Cloudinary public_id from URL:", imageUrl);
+            return;
+        }
+
+        const publicId = match[1];
+        const result = await cloudinary.uploader.destroy(publicId);
+
+        if (result.result !== "ok" && result.result !== "not found") {
+            console.error("Cloudinary delete did not succeed:", imageUrl, result);
+        }
     } catch (err) {
-        console.error("Failed to delete cloudinary image:", err.message);
+        console.error("Failed to delete cloudinary image:", imageUrl, err.message);
     }
 };

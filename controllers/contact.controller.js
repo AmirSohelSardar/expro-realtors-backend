@@ -1,5 +1,6 @@
 import Contact from "../models/contact.model.js";
 import sendEmail from "../utils/sendEmail.js";
+import { escapeHtml } from "../utils/escapeHtml.js";
 
 // Create Contact
 export const createContact = async (req, res) => {
@@ -26,12 +27,12 @@ export const createContact = async (req, res) => {
                 <p>You have received a new message from the platform.</p>
 
                 <div style="background:#f8fafc;padding:20px;border-radius:10px;border:1px solid #e2e8f0;">
-                    <p><strong>Name:</strong> ${name}</p>
-                    <p><strong>Email:</strong> ${email}</p>
-                    <p><strong>Phone:</strong> ${phone || "N/A"}</p>
-                    <p><strong>Role:</strong> ${role}</p>
+                    <p><strong>Name:</strong> ${escapeHtml(name)}</p>
+                    <p><strong>Email:</strong> ${escapeHtml(email)}</p>
+                    <p><strong>Phone:</strong> ${escapeHtml(phone) || "N/A"}</p>
+                    <p><strong>Role:</strong> ${escapeHtml(role)}</p>
                     <p><strong>Message:</strong></p>
-                    <p>"${message}"</p>
+                    <p>"${escapeHtml(message)}"</p>
                 </div>
             </div>
         `;

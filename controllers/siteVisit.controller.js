@@ -1,6 +1,7 @@
 import SiteVisit from "../models/siteVisit.model.js";
 import Property from "../models/property.model.js";
 import sendEmail from "../utils/sendEmail.js";
+import { escapeHtml } from "../utils/escapeHtml.js";
 
 // buyer books a site visit for a property
 export const createSiteVisit = async (req, res) => {
@@ -30,13 +31,13 @@ export const createSiteVisit = async (req, res) => {
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #1e293b;">
                 <h2 style="color: #0d9488;">New Site Visit Request</h2>
                 <div style="background:#f8fafc;padding:20px;border-radius:10px;border:1px solid #e2e8f0;">
-                    <p><strong>Property:</strong> ${property.title}</p>
-                    <p><strong>Requested by:</strong> ${name}</p>
-                    <p><strong>Phone:</strong> ${phone}</p>
-                    <p><strong>Buyer email:</strong> ${req.user.email}</p>
+                    <p><strong>Property:</strong> ${escapeHtml(property.title)}</p>
+                    <p><strong>Requested by:</strong> ${escapeHtml(name)}</p>
+                    <p><strong>Phone:</strong> ${escapeHtml(phone)}</p>
+                    <p><strong>Buyer email:</strong> ${escapeHtml(req.user.email)}</p>
                     <p><strong>Preferred date:</strong> ${new Date(preferredDate).toLocaleString()}</p>
-                    <p><strong>Listed by:</strong> ${property.seller?.name || "N/A"} (${property.seller?.email || "N/A"})</p>
-                    ${message ? `<p><strong>Message:</strong> ${message}</p>` : ""}
+                    <p><strong>Listed by:</strong> ${escapeHtml(property.seller?.name) || "N/A"} (${escapeHtml(property.seller?.email) || "N/A"})</p>
+                    ${message ? `<p><strong>Message:</strong> ${escapeHtml(message)}</p>` : ""}
                 </div>
             </div>
         `;

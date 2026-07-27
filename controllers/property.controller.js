@@ -6,13 +6,19 @@ import SiteVisit from "../models/siteVisit.model.js";
 import jwt from 'jsonwebtoken';
 import { uploadToCloudinary, deleteFromCloudinary } from "../utils/uploadToCloudinary.js";
 
-import cloudinary from './../config/cloudinary.js';
 
 
 //add propertyDetailsStyles
 
 export const addProperty = async (req,res)=>{
     try{
+        if (req.user.role === "seller" && !req.user.isApproved) {
+            return res.status(403).json({
+                success: false,
+                message: "Your seller account is pending admin approval. You can't list properties yet."
+            });
+        }
+
         let imageUrls =[];
         if(req.files && req.files.length>0){
             for(let file of req.files){
@@ -206,9 +212,7 @@ export const deleteProperty = async(req,res)=>{
         //delete image from cloudinary
 
         for (let imageUrl of property.images){
-            const publicId = imageUrl.split("/").pop().split(".")[0];
-            await cloudinary.uploader.destroy("properties/" + publicId);
-
+            await deleteFromCloudinary(imageUrl);
         }
 
         await property.deleteOne();
@@ -305,7 +309,12 @@ export const getAllProperties = async (req, res) => {
     }
    if (bhk) {
       if (bhk === "5+") {
-        query.$expr = { $gte: [{ $toInt: "$bhk" }, 5] };
+        query.$expr = {
+          $gte: [
+            { $toInt: { $cond: [{ $in: ["$bhk", [null, ""]] }, "0", "$bhk"] } },
+            5,
+          ],
+        };
       } else {
         query.bhk = bhk;
       }
@@ -336,13 +345,25 @@ export const getAllProperties = async (req, res) => {
     if (sort === "priceHigh") sortOption = { price: -1 };
     if (sort === "latest") sortOption = { createdAt: -1 };
 
-    const properties = await Property.find(query)
-      .populate("seller", "name phone profilePic")
-      .sort(sortOption);
+    const page = Math.max(1, Number(req.query.page) || 1);
+    const limit = Math.min(50, Number(req.query.limit) || 12);
+    const skip = (page - 1) * limit;
+
+    const [properties, total] = await Promise.all([
+      Property.find(query)
+        .populate("seller", "name phone profilePic")
+        .sort(sortOption)
+        .skip(skip)
+        .limit(limit),
+      Property.countDocuments(query),
+    ]);
 
     res.json({
       success: true,
       count: properties.length,
+      total,
+      page,
+      totalPages: Math.max(1, Math.ceil(total / limit)),
       properties,
     });
   } catch (error) {
