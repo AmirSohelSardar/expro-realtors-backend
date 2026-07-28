@@ -381,7 +381,7 @@ export const getPropertyDetails = async (req,res)=>{
     try{
         const property = await Property.findById(req.params.id).populate(
             "seller",
-            "name email phone profilePic isApproved"
+            "name email phone profilePic isApproved role"
         )
         if(!property){
             return res.status(404).json({
