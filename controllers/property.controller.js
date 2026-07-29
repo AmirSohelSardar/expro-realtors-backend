@@ -20,11 +20,17 @@ export const addProperty = async (req,res)=>{
         }
 
         let imageUrls =[];
-        if(req.files && req.files.length>0){
-            for(let file of req.files){
+        if(req.files?.images && req.files.images.length>0){
+            for(let file of req.files.images){
                 const result = await uploadToCloudinary(file.buffer, "properties");
                 imageUrls.push(result.secure_url);
             }
+        }
+
+        let locationImageUrl;
+        if (req.files?.locationImage?.[0]) {
+            const result = await uploadToCloudinary(req.files.locationImage[0].buffer, "properties/location");
+            locationImageUrl = result.secure_url;
         }
 
       const property = await Property.create({
@@ -41,6 +47,8 @@ export const addProperty = async (req,res)=>{
       furnishing: req.body.furnishing,
       status: req.body.status,
       images: imageUrls,
+      locationImage: locationImageUrl,
+      locationDetails: req.body.locationDetails ? req.body.locationDetails.trim() : undefined,
       youtubeUrl: req.body.youtubeUrl ? req.body.youtubeUrl.trim() : undefined,
       developerName: req.body.developerName,
       possessionStatus: req.body.possessionStatus || undefined,
@@ -146,6 +154,7 @@ export const updateProperty = async (req, res) => {
       "totalUnits",
       "possessionYear",
       "reraId",
+    "locationDetails",
     ];
     fields.forEach((field) => {
       if (req.body[field] !== undefined) {
@@ -178,13 +187,27 @@ export const updateProperty = async (req, res) => {
       }
     }
 
-    if (req.files && req.files.length > 0) {
+    if (req.files?.images && req.files.images.length > 0) {
       let newImages = [];
-      for (let file of req.files) {
+      for (let file of req.files.images) {
         const result = await uploadToCloudinary(file.buffer, "properties");
         newImages.push(result.secure_url);
       }
       property.images = [...property.images, ...newImages];
+    }
+
+    if (req.files?.locationImage?.[0]) {
+      // replacing the location image — delete the old one from Cloudinary first
+      if (property.locationImage) {
+        await deleteFromCloudinary(property.locationImage);
+      }
+      const result = await uploadToCloudinary(req.files.locationImage[0].buffer, "properties/location");
+      property.locationImage = result.secure_url;
+    } else if (req.body.removeLocationImage === "true") {
+      if (property.locationImage) {
+        await deleteFromCloudinary(property.locationImage);
+      }
+      property.locationImage = undefined;
     }
 
     await property.save();
@@ -229,6 +252,10 @@ export const deleteProperty = async(req,res)=>{
 
         for (let imageUrl of property.images){
             await deleteFromCloudinary(imageUrl);
+        }
+
+        if (property.locationImage) {
+            await deleteFromCloudinary(property.locationImage);
         }
 
         await property.deleteOne();

@@ -92,6 +92,9 @@ export const deleteProperty = async(req,res)=>{
         for (const imageUrl of property.images) {
             await deleteFromCloudinary(imageUrl);
         }
+        if (property.locationImage) {
+            await deleteFromCloudinary(property.locationImage);
+        }
 
         await Property.findByIdAndDelete(req.params.id);
         await Wishlist.deleteMany({ property: property._id });
@@ -273,6 +276,9 @@ export const rejectProperty = async (req, res) => {
 
         for (const imageUrl of property.images) {
             await deleteFromCloudinary(imageUrl);
+        }
+        if (property.locationImage) {
+            await deleteFromCloudinary(property.locationImage);
         }
 
         await property.deleteOne();

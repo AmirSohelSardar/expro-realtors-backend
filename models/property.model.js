@@ -94,6 +94,12 @@ const propertySchema = new mongoose.Schema({
     reraId: {
       type: String,
     },
+    locationImage: {
+      type: String,
+    },
+    locationDetails: {
+      type: String,
+    },
     seller: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

@@ -17,9 +17,27 @@ import upload from '../middlewares/upload.middleware.js'
 const propertyRouter = express.Router();
 propertyRouter.get("/",getAllProperties);
 
-propertyRouter.post("/",protect,authorize("seller","admin"),upload.array("images",10),addProperty);
+propertyRouter.post(
+  "/",
+  protect,
+  authorize("seller", "admin"),
+  upload.fields([
+    { name: "images", maxCount: 10 },
+    { name: "locationImage", maxCount: 1 },
+  ]),
+  addProperty
+);
 propertyRouter.get("/my",protect,authorize("seller","admin"),getMyProperties);
-propertyRouter.put("/:id",protect, authorize("seller","admin"),upload.array("images",10), updateProperty);
+propertyRouter.put(
+  "/:id",
+  protect,
+  authorize("seller", "admin"),
+  upload.fields([
+    { name: "images", maxCount: 10 },
+    { name: "locationImage", maxCount: 1 },
+  ]),
+  updateProperty
+);
 
 propertyRouter.delete("/:id",protect, authorize("seller","admin"),deleteProperty);
 propertyRouter.patch("/:id/status",protect,authorize("seller","admin"),updatePropertyStatus);
