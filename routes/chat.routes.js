@@ -1,28 +1,27 @@
 import express from 'express';
 import { protect } from '../middlewares/auth.middleware.js';
 import Chat from './../models/chat.model.js';
+import User from '../models/user.model.js';
 
 const chatRouter = express.Router();
 
 chatRouter.use(protect);
 
-// to create a Chat
+// to create a Chat — ONLY a buyer may start a new conversation, and only with a
+// seller/admin who actually lists properties. This is the single gate that makes
+// buyer↔seller and buyer↔admin the only possible chat pairs on the whole platform.
 chatRouter.post("/start", async (req, res) => {
     try {
-        const { propertyId, sellerId, buyerId: providedBuyerId } = req.body;
-        let buyerId, finalSellerId;
+        const { propertyId, sellerId } = req.body;
 
-       if (providedBuyerId && sellerId) {
-    // Explicit buyer/seller pair provided by the frontend
-    buyerId = providedBuyerId;
-    finalSellerId = sellerId;
-} else if (req.user.role === "seller") {
-    buyerId = providedBuyerId;
-    finalSellerId = req.user._id;
-} else {
-    buyerId = req.user._id;
-    finalSellerId = sellerId;
-}
+        if (req.user.role !== "buyer") {
+            return res.status(403).json({
+                message: "Only buyer accounts can start a conversation with a property lister"
+            });
+        }
+
+        const buyerId = req.user._id;      // never trust an identity sent from the client
+        const finalSellerId = sellerId;
 
         if (!buyerId || !finalSellerId) {
             return res.status(400).json({
@@ -30,7 +29,20 @@ chatRouter.post("/start", async (req, res) => {
             });
         }
 
-        // check for an existing chat btw this buyer and seller
+        if (buyerId.toString() === finalSellerId.toString()) {
+            return res.status(400).json({
+                message: "You can't start a chat with yourself"
+            });
+        }
+
+        const lister = await User.findById(finalSellerId).select("role");
+        if (!lister || !["seller", "admin"].includes(lister.role)) {
+            return res.status(400).json({
+                message: "You can only chat with a seller or Expro Realtors about a listed property"
+            });
+        }
+
+        // check for an existing chat btw this buyer and this seller/admin
         let chat = await Chat.findOne({
             buyer: buyerId,
             seller: finalSellerId
@@ -52,6 +64,11 @@ chatRouter.post("/start", async (req, res) => {
                     throw createErr;
                 }
             }
+        } else if (propertyId && chat.property?.toString() !== propertyId) {
+            // same buyer, same seller/admin, but reaching out about a different property —
+            // keep the single ongoing thread, just refresh which property it's currently about
+            chat.property = propertyId;
+            await chat.save();
         }
 
         chat = await Chat.findById(chat._id)
