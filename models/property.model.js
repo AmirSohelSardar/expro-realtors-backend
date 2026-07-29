@@ -70,6 +70,30 @@ const propertySchema = new mongoose.Schema({
     youtubeUrl: {
       type: String,
     },
+    developerName: {
+      type: String,
+    },
+    possessionStatus: {
+      type: String,
+      enum: ["new-launch", "under-construction", "ready-to-move"],
+    },
+    possessionPercent: {
+      type: Number,
+      min: 0,
+      max: 100,
+    },
+    blocks: {
+      type: String,
+    },
+    totalUnits: {
+      type: Number,
+    },
+    possessionYear: {
+      type: String,
+    },
+    reraId: {
+      type: String,
+    },
     seller: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

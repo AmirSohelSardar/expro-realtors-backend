@@ -42,6 +42,13 @@ export const addProperty = async (req,res)=>{
       status: req.body.status,
       images: imageUrls,
       youtubeUrl: req.body.youtubeUrl ? req.body.youtubeUrl.trim() : undefined,
+      developerName: req.body.developerName,
+      possessionStatus: req.body.possessionStatus || undefined,
+      possessionPercent: req.body.possessionPercent ? Number(req.body.possessionPercent) : undefined,
+      blocks: req.body.blocks,
+      totalUnits: req.body.totalUnits ? Number(req.body.totalUnits) : undefined,
+      possessionYear: req.body.possessionYear,
+      reraId: req.body.reraId,
       seller: req.user._id,
       isVerified: req.user.role === "admin" ? true : false,
       amenities: req.body.amenities
@@ -129,9 +136,16 @@ export const updateProperty = async (req, res) => {
       "bathrooms",
       "areaSize",
       "furnishing",
-      "status",
+    "status",
       "amenities",
       "youtubeUrl",
+      "developerName",
+      "possessionStatus",
+      "possessionPercent",
+      "blocks",
+      "totalUnits",
+      "possessionYear",
+      "reraId",
     ];
     fields.forEach((field) => {
       if (req.body[field] !== undefined) {
