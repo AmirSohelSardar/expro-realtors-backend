@@ -67,6 +67,9 @@ const propertySchema = new mongoose.Schema({
       default: "sale",
     },
     images: [{ type: String }],
+    youtubeUrl: {
+      type: String,
+    },
     seller: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

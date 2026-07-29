@@ -41,6 +41,7 @@ export const addProperty = async (req,res)=>{
       furnishing: req.body.furnishing,
       status: req.body.status,
       images: imageUrls,
+      youtubeUrl: req.body.youtubeUrl ? req.body.youtubeUrl.trim() : undefined,
       seller: req.user._id,
       isVerified: req.user.role === "admin" ? true : false,
       amenities: req.body.amenities
@@ -130,6 +131,7 @@ export const updateProperty = async (req, res) => {
       "furnishing",
       "status",
       "amenities",
+      "youtubeUrl",
     ];
     fields.forEach((field) => {
       if (req.body[field] !== undefined) {
