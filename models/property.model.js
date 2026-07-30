@@ -115,6 +115,13 @@ const propertySchema = new mongoose.Schema({
     ceoCommentary: {
       type: String,
     },
+    faqs: [
+      {
+        question: { type: String, required: true },
+        answer: { type: String, required: true },
+        _id: false,
+      },
+    ],
     seller: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

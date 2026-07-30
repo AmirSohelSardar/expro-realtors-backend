@@ -54,6 +54,7 @@ export const addProperty = async (req,res)=>{
       strengths: req.body.strengths ? req.body.strengths.trim() : undefined,
       considerations: req.body.considerations ? req.body.considerations.trim() : undefined,
       ceoCommentary: req.body.ceoCommentary ? req.body.ceoCommentary.trim() : undefined,
+      faqs: parseFaqsField(req.body.faqs),
       youtubeUrl: req.body.youtubeUrl ? req.body.youtubeUrl.trim() : undefined,
       developerName: req.body.developerName,
       possessionStatus: req.body.possessionStatus || undefined,
@@ -137,6 +138,10 @@ export const updateProperty = async (req, res) => {
       });
     }
     
+    if (req.body.faqs !== undefined) {
+      property.faqs = parseFaqsField(req.body.faqs) || [];
+    }
+
     const fields = [
       "title",
       "description",

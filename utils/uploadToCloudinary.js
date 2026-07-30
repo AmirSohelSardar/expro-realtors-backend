@@ -1,4 +1,19 @@
-import cloudinary from "../config/cloudinary.js";
+import cloudinary from './../config/cloudinary.js';
+
+// Parses the FAQ list sent as a JSON string from the form, keeping only
+// well-formed { question, answer } pairs. Returns undefined if none — keeps
+// this field fully optional, matching every other optional property field.
+function parseFaqsField(value) {
+    if (!value) return undefined;
+    try {
+        const parsed = JSON.parse(value);
+        if (!Array.isArray(parsed)) return undefined;
+        const clean = parsed.filter((f) => f?.question?.trim() && f?.answer?.trim());
+        return clean.length > 0 ? clean : undefined;
+    } catch (e) {
+        return undefined;
+    }
+}
 import streamifier from 'streamifier';
 
 export const uploadToCloudinary = (buffer, folder= "general")=>{
