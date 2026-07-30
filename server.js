@@ -14,10 +14,24 @@ import siteVisitRouter from './routes/siteVisit.routes.js';
 import newsletterRouter from './routes/newsletter.routes.js';
 
 const app = express();
-
 // DB
 connectDB().catch((err) => {
     console.error("Failed to connect to MongoDB:", err.message);
+});
+
+// Ensure every request waits for a real DB connection before hitting a route —
+// on serverless, a cold function can otherwise start handling requests before
+// Mongoose has finished connecting, which causes intermittent 500s.
+app.use(async (req, res, next) => {
+    try {
+        await connectDB();
+        next();
+    } catch (err) {
+        res.status(503).json({
+            success: false,
+            message: "Database temporarily unavailable, please try again in a moment",
+        });
+    }
 });
 
 // MIDDLEWARES
