@@ -112,6 +112,9 @@ const propertySchema = new mongoose.Schema({
     considerations: {
       type: String,
     },
+    ceoCommentary: {
+      type: String,
+    },
     seller: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
