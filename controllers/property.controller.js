@@ -49,6 +49,10 @@ export const addProperty = async (req,res)=>{
       images: imageUrls,
       locationImage: locationImageUrl,
       locationDetails: req.body.locationDetails ? req.body.locationDetails.trim() : undefined,
+      investmentAnalysis: req.body.investmentAnalysis ? req.body.investmentAnalysis.trim() : undefined,
+      whyConsider: req.body.whyConsider ? req.body.whyConsider.trim() : undefined,
+      strengths: req.body.strengths ? req.body.strengths.trim() : undefined,
+      considerations: req.body.considerations ? req.body.considerations.trim() : undefined,
       youtubeUrl: req.body.youtubeUrl ? req.body.youtubeUrl.trim() : undefined,
       developerName: req.body.developerName,
       possessionStatus: req.body.possessionStatus || undefined,
@@ -155,6 +159,10 @@ export const updateProperty = async (req, res) => {
       "possessionYear",
       "reraId",
     "locationDetails",
+      "investmentAnalysis",
+      "whyConsider",
+      "strengths",
+      "considerations",
     ];
     fields.forEach((field) => {
       if (req.body[field] !== undefined) {

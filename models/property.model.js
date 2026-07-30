@@ -100,6 +100,18 @@ const propertySchema = new mongoose.Schema({
     locationDetails: {
       type: String,
     },
+    investmentAnalysis: {
+      type: String,
+    },
+    whyConsider: {
+      type: String,
+    },
+    strengths: {
+      type: String,
+    },
+    considerations: {
+      type: String,
+    },
     seller: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
